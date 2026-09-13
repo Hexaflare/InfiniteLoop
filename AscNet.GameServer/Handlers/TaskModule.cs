@@ -487,14 +487,18 @@ namespace AscNet.GameServer.Handlers
             };
         }
 
-        private static int WeeklyTwoActiveness(Session session)
-        {
-            IReadOnlySet<int> tagged = WeeklyTaggedTaskIds.Value;
-            return session.player.MissionProgress.ClaimedTaskIds
+        private static int WeeklyTwoActiveness(Session session) => WeeklyTwoClaimedTaskIds(session).Count();
+
+        // The client's XTaskManager.GetWeeklyTaskActiveness counts finished tasks tagged Weekly; the login
+        // projection and the granted milestone must derive from this same set so they cannot diverge.
+        internal static IEnumerable<int> WeeklyTwoClaimedTaskIds(Session session) =>
+            session.player.MissionProgress.ClaimedTaskIds
                 .Concat(session.stage.FinishedTasks)
                 .Distinct()
-                .Count(tagged.Contains);
-        }
+                .Where(WeeklyTaggedTaskIds.Value.Contains);
+
+        private static void ResetWeeklyTagClaims(Session session) =>
+            session.player.MissionProgress.ClaimedTaskIds.RemoveAll(WeeklyTaggedTaskIds.Value.Contains);
 
         private static string WeeklyTwoClaimKey(long week, int milestone) => $"weekly-two:{week}:{milestone}";
 
@@ -2442,6 +2446,10 @@ namespace AscNet.GameServer.Handlers
             else if (session.player.MissionProgress.WeeklyResetWeek != week)
             {
                 ResetMissionType(session, 3);
+                // Weekly-tagged tasks outside CurrentTask (GuildWeekly Type 23) are not covered by
+                // ResetMissionType; clear their claims too so the new week cannot inherit prior completions.
+                // Shared condition counters (e.g. 35010, also used by the Type 6 Thursday task) are preserved.
+                ResetWeeklyTagClaims(session);
                 ResetPassportTaskType(session, 2);
                 session.player.PlayerData.WeeklyActivenessRewardStatus = 0;
                 Item? weeklyActiveness = session.inventory.Items.FirstOrDefault(item => item.Id == Inventory.WeeklyActiveness);
