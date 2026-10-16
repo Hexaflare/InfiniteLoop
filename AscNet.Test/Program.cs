@@ -80,6 +80,11 @@ namespace AscNet.Test
             try
             {
                 UseResourceWorkingDirectory();
+                if (args.Contains("--cerberus-game-compat-only"))
+                {
+                    ValidateCerberusGameCompatibility();
+                    return;
+                }
                 if (args.Contains("--cn-sdk-config-only"))
                 {
                     ValidateKuroSdkCompatibilityEndpoints().GetAwaiter().GetResult();
@@ -1167,6 +1172,7 @@ namespace AscNet.Test
                     return;
                 }
 
+                ValidateCerberusGameCompatibility();
                 ValidateUltimaAwakenCompatibility();
                 ValidateLoadingOptionCompatibility();
                 ValidateDormDispatchAllCompatibility();

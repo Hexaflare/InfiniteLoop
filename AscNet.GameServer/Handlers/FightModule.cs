@@ -465,6 +465,7 @@ namespace AscNet.GameServer.Handlers
                 return;
             }
             BossModule.CancelFight(session);
+            CerberusGameModule.CancelFight(session);
             session.PendingBossInshotFight = null;
             session.fight = null;
             session.SendResponse(new LeaveFightResponse(), packet.Id);
@@ -474,6 +475,12 @@ namespace AscNet.GameServer.Handlers
         public static void PreFightRequestHandler(Session session, Packet.Request packet)
         {
             PreFightRequest req = packet.Deserialize<PreFightRequest>();
+            int cerberusRecoveryCode = CerberusGameModule.RecoverPendingFight(session);
+            if (cerberusRecoveryCode != 0)
+            {
+                session.SendResponse(new PreFightResponse { Code = cerberusRecoveryCode }, packet.Id);
+                return;
+            }
             if (TheatreModule.TryPreFight(session, req, out PreFightResponse originalTheatreResponse))
             {
                 session.SendResponse(originalTheatreResponse, packet.Id);
@@ -506,6 +513,13 @@ namespace AscNet.GameServer.Handlers
             if (courseCode != 0)
             {
                 session.SendResponse(new PreFightResponse { Code = courseCode }, packet.Id);
+                return;
+            }
+            int cerberusCode = CerberusGameModule.IsStage(req.PreFightData.StageId)
+                ? CerberusGameModule.ValidatePreFight(session, req.PreFightData) : 0;
+            if (cerberusCode != 0)
+            {
+                session.SendResponse(new PreFightResponse { Code = cerberusCode }, packet.Id);
                 return;
             }
             int explorePreFightCode = ExploreModule.ValidatePreFight(session, req.PreFightData);
@@ -699,7 +713,8 @@ namespace AscNet.GameServer.Handlers
                     : configuredStudyRobotIds.ToList();
             }
             else if (BossInshotModule.IsStage(req.PreFightData.StageId)
-                || TransfiniteTowerModule.IsBattleStage(req.PreFightData.StageId))
+                || TransfiniteTowerModule.IsBattleStage(req.PreFightData.StageId)
+                || CerberusGameModule.IsStage(req.PreFightData.StageId))
             {
                 robotIds = requestedRobotIds;
             }
@@ -782,7 +797,8 @@ namespace AscNet.GameServer.Handlers
             if (robotIds.Count > 0
                 && (stageTable is null || req.PreFightData.CardIds is null || deployedCharacterCount == 0
                     || deployedCharacterCount + robotIds.Count == 3
-                    || TransfiniteTowerModule.IsBattleStage(req.PreFightData.StageId)))
+                    || TransfiniteTowerModule.IsBattleStage(req.PreFightData.StageId)
+                    || CerberusGameModule.IsStage(req.PreFightData.StageId)))
             {
                 int npcKey = 0;
                 foreach (var robotId in robotIds)
@@ -794,6 +810,15 @@ namespace AscNet.GameServer.Handlers
                         continue;
                     }
 
+                    if (CerberusGameModule.IsStage(req.PreFightData.StageId))
+                    {
+                        // RobotIds and CardIds are parallel positional arrays in XCerberusGameTeam.
+                        var positionalRobots = req.PreFightData.RobotIds
+                            ?? throw new InvalidOperationException("Validated Cerberus deployment has no robot slots.");
+                        npcKey = positionalRobots.IndexOf(robotId);
+                        if (playerNpcData.ContainsKey(npcKey))
+                            throw new InvalidOperationException("Cerberus deployment overlaps an owned character.");
+                    }
                     while (playerNpcData.ContainsKey(npcKey))
                         npcKey++;
 
@@ -874,6 +899,7 @@ namespace AscNet.GameServer.Handlers
                 CourseModule.CancelPendingResult(session);
             // Retain the resolved deployment, including a server-selected default team.
             req.PreFightData.CardIds = cardIdsToDeploy.ToList();
+            rsp.FightData.FightId = CerberusGameModule.RecordFightStarted(session, req, rsp.FightData.FightId);
             session.fight = new(req, rsp.FightData.FightId);
             session.SendResponse(rsp, packet.Id);
         }
@@ -1217,6 +1243,11 @@ namespace AscNet.GameServer.Handlers
             EnterStoryRequest req = packet.Deserialize<EnterStoryRequest>();
             EnterStoryResponse response = new();
 
+            if (CerberusGameModule.TryEnterStory(session, req, out EnterStoryResponse cerberusResponse))
+            {
+                session.SendResponse(cerberusResponse, packet.Id);
+                return;
+            }
             if (TowerModule.TryEnterStory(session, req, out EnterStoryResponse towerResponse))
             {
                 session.SendResponse(towerResponse, packet.Id);
@@ -2586,6 +2617,7 @@ namespace AscNet.GameServer.Handlers
                 || Theatre4Module.IsCombatStage(session.fight?.PreFight.PreFightData.StageId ?? 0))
                 return;
             BossModule.CancelFight(session);
+            CerberusGameModule.CancelFight(session);
             session.PendingBossInshotFight = null;
             session.fight = null;
         }
@@ -2602,6 +2634,11 @@ namespace AscNet.GameServer.Handlers
             {
                 if (TryRecoverFailedFightSettle(session, packet, out req))
                 {
+                    if (CerberusGameModule.TrySettleFight(session, req.Result, out FightSettleResponse cerberusFailedResponse))
+                    {
+                        session.SendResponse(cerberusFailedResponse, packet.Id);
+                        return;
+                    }
                     if (TheatreModule.TrySettleFight(session, req.Result, out FightSettleResponse originalTheatreFailedResponse, packet.Id)
                         || Theatre4Module.TrySettleFight(session, req.Result, out originalTheatreFailedResponse, packet.Id))
                     {
@@ -2642,6 +2679,11 @@ namespace AscNet.GameServer.Handlers
             {
                 ClearFailedFightSettle(session);
                 session.SendResponse(new FightSettleResponse { Code = FightAuthorizationError }, packet.Id);
+                return;
+            }
+            if (CerberusGameModule.TrySettleFight(session, req.Result, out FightSettleResponse cerberusResponse))
+            {
+                session.SendResponse(cerberusResponse, packet.Id);
                 return;
             }
             if (TheatreModule.TrySettleFight(session, req.Result, out FightSettleResponse originalTheatreResponse, packet.Id)
@@ -2751,6 +2793,11 @@ namespace AscNet.GameServer.Handlers
                 ? previousStageData
                 : session.stage?.Stages.GetValueOrDefault(req.Result.StageId);
             bool isQuickClear = responseStageId != req.Result.StageId;
+            if (CerberusGameModule.IsStage(responseStageId))
+            {
+                session.SendResponse(new FightSettleResponse { Code = FightAuthorizationError }, packet.Id);
+                return;
+            }
             bool isFirstClear = ArenaModule.IsArenaStage(req.Result.StageId)
                 ? !session.player.SimulatedBattlefield.ArenaStageMaxPoints.ContainsKey(req.Result.StageId)
                 : previousStageData is null || !previousStageData.Passed;
@@ -3261,7 +3308,7 @@ namespace AscNet.GameServer.Handlers
             };
         }
 
-        private static StageDatum BuildFightSettleStageDatum(
+        internal static StageDatum BuildFightSettleStageDatum(
             uint stageId,
             long starsMark,
             long achievement,

@@ -876,6 +876,7 @@ namespace AscNet.GameServer.Handlers
                 .Where(x => existingIds.Add((uint)x.TaskId))
                 .Select(ToLoginTask));
             tasks.AddRange(BuildTransfiniteTowerTaskProgress(session).Where(x => existingIds.Add((uint)x.TaskId)).Select(ToLoginTask));
+            tasks.AddRange(BuildCerberusGameTaskProgress(session).Where(x => existingIds.Add((uint)x.TaskId)).Select(ToLoginTask));
             tasks.AddRange(BuildPunishaarTaskProgress(session).Where(x => existingIds.Add((uint)x.TaskId)).Select(ToLoginTask));
             tasks.AddRange(BuildDayTaskProgress(session)
                 .Where(x => existingIds.Add((uint)x.TaskId))
@@ -935,6 +936,7 @@ namespace AscNet.GameServer.Handlers
                         .Concat(BuildEnvelopeTaskProgress(session).Select(ToSyncTask))
                         .Concat(BuildFangKuaiTaskProgress(session).Select(ToSyncTask))
                         .Concat(BuildTransfiniteTowerTaskProgress(session).Select(ToSyncTask))
+                        .Concat(BuildCerberusGameTaskProgress(session).Select(ToSyncTask))
                         .Concat(BuildPunishaarTaskProgress(session).Select(ToSyncTask))
                         .Concat(BuildDayTaskProgress(session).Select(ToSyncTask))
                         .Concat(BuildPassportTaskProgress(session).Select(ToSyncTask))
@@ -1985,7 +1987,7 @@ namespace AscNet.GameServer.Handlers
                 });
         }
 
-        private enum TaskClaimKind { Current, Transfinite, Passport, Dorm, Story, LifeTree, GuildAchievement, SameColorGame, LinkageDraw, Envelope, FangKuai, DayTask, TransfiniteTower, Punishaar }
+        private enum TaskClaimKind { Current, Transfinite, Passport, Dorm, Story, LifeTree, GuildAchievement, SameColorGame, LinkageDraw, Envelope, FangKuai, DayTask, TransfiniteTower, Punishaar, CerberusGame }
 
         private sealed record PreparedTaskClaim(int TaskId, TaskClaimKind Kind, string ClaimKey, List<RewardGoodsTable> Goods);
 
@@ -2060,6 +2062,13 @@ namespace AscNet.GameServer.Handlers
                 key = $"transfinite-tower-task:{taskId}";
                 achieved = BuildTransfiniteTowerTaskProgress(session, claimed).Any(row => row.TaskId == taskId && row.State == TaskStateAchieved);
                 goods = RewardHandler.GetRewardGoods(tower.RewardId ?? 0);
+            }
+            else if (TaskRowsById.Value.GetValueOrDefault(taskId) is { } cerberus && IsCerberusGameTask(cerberus))
+            {
+                kind = TaskClaimKind.CerberusGame;
+                key = $"cerberus-game-task:{taskId}";
+                achieved = BuildCerberusGameTaskProgress(session, claimed).Any(row => row.TaskId == taskId && row.State == TaskStateAchieved);
+                goods = RewardHandler.GetRewardGoods(cerberus.RewardId ?? 0);
             }
             else if (DayTasks.Value.GetValueOrDefault(taskId) is { } dayTask)
             {

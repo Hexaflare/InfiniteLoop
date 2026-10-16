@@ -76,6 +76,8 @@ Guild contribution (38), Command Bureau EXP (40), Beacon Amplifier Points (46), 
 | 96200 | Supply Coupon | Supply Coupon | 9,999,999 | Awakening Tundra tech tree |
 | 96002 | Tantalum Ore | Tantalum Ore | 999,999,999 | Norman Ore Shop |
 | 96207 | Expedition Loot X | Expedition Loot X | 999,999 | Guild Expedition Shop X |
+| 97007 | Special "Honey Cake" | Special "Honey Cake" | 999,999 | The Meandering Three — Wanderer Record token; referenced shops 4008/4009 have no catalog and stay closed |
+| 97008 | Movie Film: Cerberus | Movie Film: Cerberus | 999,999 | The Meandering Three — Wild Waste token; referenced shops 4008/4009 have no catalog and stay closed |
 | 97074 | Service Certificate | Service Certificate | 999 | Service Shop 1460 |
 | 97084 | Sealed Writs | Sealed Writs | 999,999 | Shrouded Requiem story rooms |
 | 97086 | Retro Module | Retro Module | 999,999 | Retro Prize Counter 1468 |

@@ -1461,7 +1461,7 @@ namespace AscNet.GameServer.Handlers
             session.SendPush(notifyBirthdayPlot);
             SendEmptyStartupPush(session, "NotifyBountyChallengeMonsterDifficultyState");
             session.SendPush(BuildNotifyBriefStoryData(session.player));
-            SendEmptyStartupPush(session, "NotifyCerberusGameData");
+            session.SendPush(CerberusGameModule.BuildNotify(session));
             TowerModule.PrepareLogin(session);
             SendEmptyStartupPush(session, "NotifyClickClearData");
             SendEmptyStartupPush(session, "NotifyClientVersion");

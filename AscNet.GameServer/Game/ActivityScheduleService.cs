@@ -2,6 +2,7 @@ using AscNet.Common.Util;
 using AscNet.Table.V2.share.activity;
 using AscNet.Table.V2.share.condition;
 using AscNet.Table.V2.share.fuben.simulatetrain;
+using AscNet.Table.V2.share.fuben.cerberusgame;
 using AscNet.Table.V2.share.miniactivity.dyemerge;
 using AscNet.Table.V2.share.samecolorgame;
 using AscNet.Table.V2.share.theatre;
@@ -61,6 +62,7 @@ public static class ActivityScheduleService
             .Concat(FangKuaiChapterEntries())
             .Concat(PunishaarStageEntries())
             .Concat(TransfiniteTowerEntries())
+            .Concat(CerberusGameEntries())
             // AscNet policy (user-approved, not retail parity): the separate self-choice lottery
             // has no authoritative calendar. Its client requires a positive end time.
             .Concat(new[] { new ActivityScheduleEntry(49501, 0, UnboundedEnd,
@@ -109,6 +111,55 @@ public static class ActivityScheduleService
                 yield return new ActivityScheduleEntry(timeId, 0, 0,
                     $"feature-window:Theatre:permanent-decoration-release:user-approved:"
                     + $"TheatreDecoration:DecorationId=20003,20004,20005:Condition:Id={conditionId}:TimeId={timeId}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// AscNet policy (user-approved): missing Cerberus activity, chapter, and reachable condition
+    /// calendars are permanent. Official entries precede these rows and win by TimeId.
+    /// A positive end keeps the client's countdown valid; progression conditions remain intact.
+    /// </summary>
+    private static IEnumerable<ActivityScheduleEntry> CerberusGameEntries()
+    {
+        foreach (CerberusGameActivityTable activity in TableReaderV2.Parse<CerberusGameActivityTable>()
+            .Where(row => row.TimeId is > 0))
+            yield return new ActivityScheduleEntry(activity.TimeId!.Value, 0, UnboundedEnd,
+                $"local-policy:CerberusGame:missing-calendar:permanent-mode:"
+                + $"CerberusGameActivity:Id={activity.Id}:TimeId={activity.TimeId}:user-approved");
+
+        CerberusGameChapterTable[] chapters = TableReaderV2.Parse<CerberusGameChapterTable>().ToArray();
+        foreach (CerberusGameChapterTable chapter in chapters.Where(row => row.TimeId > 0))
+            yield return new ActivityScheduleEntry(chapter.TimeId, 0, UnboundedEnd,
+                $"local-policy:CerberusGame:missing-calendar:permanent-mode:"
+                + $"CerberusGameChapter:Id={chapter.Id}:TimeId={chapter.TimeId}:user-approved");
+
+        Dictionary<int, ConditionTable> conditions = TableReaderV2.Parse<ConditionTable>()
+            .ToDictionary(row => row.Id);
+        // Communication rows have no OpenCondition; their owning story points supply the gates.
+        Stack<int> pending = new(chapters.Select(row => row.OpenCondition)
+            .Concat(TableReaderV2.Parse<CerberusGameStoryLineTable>().Select(row => row.OpenCondition))
+            .Concat(TableReaderV2.Parse<CerberusGameStoryPointTable>().Select(row => row.OpenCondition))
+            .Select(conditionId => conditionId.GetValueOrDefault())
+            .Where(conditionId => conditionId > 0));
+        HashSet<int> seen = [];
+        while (pending.TryPop(out int conditionId))
+        {
+            if (!seen.Add(conditionId))
+                continue;
+            ConditionTable condition = conditions[conditionId];
+            if (!string.IsNullOrWhiteSpace(condition.Formula))
+            {
+                foreach (System.Text.RegularExpressions.Match reference in
+                    System.Text.RegularExpressions.Regex.Matches(condition.Formula, @"\d+"))
+                    pending.Push(int.Parse(reference.Value));
+            }
+            else if (condition.Type == 23001 && condition.Params.Count > 0 && condition.Params[0] > 0)
+            {
+                int timeId = condition.Params[0];
+                yield return new ActivityScheduleEntry(timeId, 0, UnboundedEnd,
+                    $"local-policy:CerberusGame:missing-calendar:permanent-mode:"
+                    + $"Condition:Id={conditionId}:TimeId={timeId}:user-approved");
             }
         }
     }

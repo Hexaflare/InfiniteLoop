@@ -38,3 +38,9 @@ Item 35 (S-rank inver material) and item 48 (Uniframe material) have no goods li
 ## Operation Guardians
 
 Operation Guardians is Maintainer Action. The client opens it through `OnOpenMaintainerAction` with functional id 1302. This repository has the error strings and the `NotifyMaintainerActionData` schema, and no Maintainer Action share tables. Login does not push that notify. The mode stays unimplemented until those tables exist.
+
+## Lightning and Thunder / The Meandering Three shops
+
+Cerberus activity rows and Thunderbolt Manual guide activity `10007` reference shops `4008` and `4009`, but neither catalog exists in `Resources/Configs/client_shops.json`. The mode's story and challenge tables do not supply shop goods, prices or purchase limits. These two shops therefore stay closed; no catalog is inferred from the guide's reward totals or unrelated `Reward.tsv` rows.
+
+Special "Honey Cake" (`97007`) and Movie Film: Cerberus (`97008`) remain inventory tokens, not automatically converted rewards. Guide `10007` lists Event Construct R&D Tickets (`50005`, target `750`), Trade Vouchers (`102`, target `2000`) and Punk Dynamo (`6003204`, target `1`), with event cause `180001`. Those are authored guide targets, not a free grant or a replacement shop catalog. Missing shops can prevent those exchange-derived guide targets from being earned.

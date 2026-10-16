@@ -8702,6 +8702,111 @@
       "transformation": [
         "all authored rows/columns via import_client_tables.project; lists as 1-based indexed columns"
       ]
+    },
+    {
+      "path": "share/fuben/cerberusgame/CerberusGameActivity.tsv",
+      "rows": 3,
+      "columns": 9,
+      "naturalKey": "Id",
+      "filter": "all",
+      "contentSha256": "f88a478bcb35dad69d929b46fe8d22315827ddcef597d2f1f4a496001f8fea98",
+      "source": [
+        "/Volumes/Lucia/PGR-native-research/PGR_DATA/en/bytes/share/fuben/cerberusgame/CerberusGameActivity.json (sha256:563b73565d389c0aa7aa50f62181179d403dc60c087d51171afe8dbe30e48616)",
+        "Scripts/import_cerberusgame_4_7.py"
+      ],
+      "transformation": [
+        "all authored rows and fields in source order; lists expanded to one-based indexed columns; omitted values remain blank"
+      ]
+    },
+    {
+      "path": "share/fuben/cerberusgame/CerberusGameChallenge.tsv",
+      "rows": 14,
+      "columns": 15,
+      "naturalKey": "Id",
+      "filter": "all",
+      "contentSha256": "2ea3e7ddaf9ba8fe042cdf831e17f1a4b84f4469536713a580cc77aca786d157",
+      "source": [
+        "/Volumes/Lucia/PGR-native-research/PGR_DATA/en/bytes/share/fuben/cerberusgame/CerberusGameChallenge.json (sha256:ea01ca3531d2c0a5adcabcb8487f6f51ba50c50437670dcba135353849d0f9cc)",
+        "Scripts/import_cerberusgame_4_7.py"
+      ],
+      "transformation": [
+        "all authored rows and fields in source order; lists expanded to one-based indexed columns; omitted values remain blank"
+      ]
+    },
+    {
+      "path": "share/fuben/cerberusgame/CerberusGameChapter.tsv",
+      "rows": 4,
+      "columns": 7,
+      "naturalKey": "Id",
+      "filter": "all",
+      "contentSha256": "a4702a53901a19f13850f3110c9f1bdb5e2b649e899c8fece2fa731813a497cd",
+      "source": [
+        "/Volumes/Lucia/PGR-native-research/PGR_DATA/en/bytes/share/fuben/cerberusgame/CerberusGameChapter.json (sha256:3fbd396db4a32dfb0181b75f8cb450cc392a3cd58f1dbf6018bafcfe1427903e)",
+        "Scripts/import_cerberusgame_4_7.py"
+      ],
+      "transformation": [
+        "all authored rows and fields in source order; lists expanded to one-based indexed columns; omitted values remain blank"
+      ]
+    },
+    {
+      "path": "share/fuben/cerberusgame/CerberusGameCommunication.tsv",
+      "rows": 5,
+      "columns": 8,
+      "naturalKey": "Id",
+      "filter": "all",
+      "contentSha256": "bd987bc148344389ef58f8aee3414209445fefcd881240a3bf651b684b716b29",
+      "source": [
+        "/Volumes/Lucia/PGR-native-research/PGR_DATA/en/bytes/share/fuben/cerberusgame/CerberusGameCommunication.json (sha256:ff6d658f815d86f63492453db66216ff3895730c3e866862ebd5fc562de22784)",
+        "Scripts/import_cerberusgame_4_7.py"
+      ],
+      "transformation": [
+        "all authored rows and fields in source order; lists expanded to one-based indexed columns; omitted values remain blank"
+      ]
+    },
+    {
+      "path": "share/fuben/cerberusgame/CerberusGameStoryLine.tsv",
+      "rows": 4,
+      "columns": 44,
+      "naturalKey": "Id",
+      "filter": "all",
+      "contentSha256": "73bb73fb7527ba1fd621edf028e8cfe450ca76bed2e6d4eef73e53d747d2863a",
+      "source": [
+        "/Volumes/Lucia/PGR-native-research/PGR_DATA/en/bytes/share/fuben/cerberusgame/CerberusGameStoryLine.json (sha256:c6d316c2233e211e818580dc0757e615fed21b9846046b3db9d3f8d49d7080cb)",
+        "Scripts/import_cerberusgame_4_7.py"
+      ],
+      "transformation": [
+        "all authored rows and fields in source order; lists expanded to one-based indexed columns; omitted values remain blank"
+      ]
+    },
+    {
+      "path": "share/fuben/cerberusgame/CerberusGameStoryPoint.tsv",
+      "rows": 48,
+      "columns": 20,
+      "naturalKey": "Id",
+      "filter": "all",
+      "contentSha256": "fb5eb5c0f831f15209ad4a722dbdd06a817dc2ab420081991c5cc6b9f6075a3f",
+      "source": [
+        "/Volumes/Lucia/PGR-native-research/PGR_DATA/en/bytes/share/fuben/cerberusgame/CerberusGameStoryPoint.json (sha256:73a69dbfc1b03e07d38c8c20773f12afaf4b08d8f262ebd439f45101cc2f09ec)",
+        "Scripts/import_cerberusgame_4_7.py"
+      ],
+      "transformation": [
+        "all authored rows and fields in source order; lists expanded to one-based indexed columns; omitted values remain blank"
+      ]
+    },
+    {
+      "path": "client/fuben/cerberusgame/CerberusGameRole.tsv",
+      "rows": 12,
+      "columns": 4,
+      "naturalKey": "Id",
+      "filter": "all",
+      "contentSha256": "707c127f4be8f92259f8b93906a4cd81dd59913976729aeff65775c7c900fae8",
+      "source": [
+        "/Volumes/Lucia/PGR-native-research/PGR_DATA/en/bytes/client/fuben/cerberusgame/CerberusGameRole.json (sha256:3ea2127205c2370f33a7bb113beea5a79243276d66562704ec3a1506ad9f32fe)",
+        "Scripts/import_cerberusgame_4_7.py"
+      ],
+      "transformation": [
+        "all authored rows and fields in source order; lists expanded to one-based indexed columns; omitted values remain blank"
+      ]
     }
   ],
   "validationNotes": [
