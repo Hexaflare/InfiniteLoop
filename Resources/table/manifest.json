@@ -1199,13 +1199,14 @@
     },
     {
       "columns": 23,
-      "contentSha256": "5a88a1ded43bfec3c5ce82bc48380d1f5b5818f11d301bc865358e50c75f4996",
+      "contentSha256": "6ebfc7cda4eb052f3641f5f8d8744f8794bf2245da855accb390516a8bbb99a2",
       "filter": "all",
       "naturalKey": "Id",
       "path": "share/dormitory/Dormitory.tsv",
-      "rows": 24,
+      "rows": 30,
       "source": [
-        "share/dormitory/Dormitory.json"
+        "share/dormitory/Dormitory.json",
+        "CN 4.8.10 bytes/share/dormitory/Dormitory.json: rows 21025-21030; not shipped in EN 4.8.10 (which ends at 21024)"
       ]
     },
     {
