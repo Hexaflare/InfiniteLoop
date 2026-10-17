@@ -99,7 +99,8 @@ public static partial class CerberusGameModule
     {
         int code = ValidateStage(session, request.StageId);
         if (code != 0) return code;
-        if (StagePoint(request.StageId)?.StoryPointType == 1 || request.ChallengeCount != 1 || request.IsHasAssist || request.SpeedrunStageId != 0) return Locked;
+        // IsHasAssist mirrors the client's global PlayerPrefs AssistSwitch, sent from every battle room; no assist is granted.
+        if (StagePoint(request.StageId)?.StoryPointType == 1 || request.ChallengeCount != 1 || request.SpeedrunStageId != 0) return Locked;
         return ValidateTeam(session, request.StageId, new CerberusGameTeamInfo
         {
             CharacterIdList = request.CardIds ?? [], RobotIdList = request.RobotIds ?? [],

@@ -191,7 +191,8 @@ internal partial class Program
         using MongoCollectionOverride mongo = MongoCollectionOverride.InstallForBiancaCompatibility(out var players, out _, out var inventories, out var stages);
         PreFightRequest Request() => new()
         {
-            PreFightData = new() { StageId = stageId, ChallengeCount = 1, CardIds = [0, 0, 0],
+            // The battle room sends the player's global assist toggle (issue #49); it must not lock the stage.
+            PreFightData = new() { StageId = stageId, ChallengeCount = 1, IsHasAssist = true, CardIds = [0, 0, 0],
                 RobotIds = challenge.RobotIds.ToList(), CaptainPos = 1, FirstFightPos = 1 }
         };
         PreFightResponse Pre(LoopbackSessionHarness harness)
